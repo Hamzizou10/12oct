@@ -79,16 +79,18 @@ static void *search_free(size_t size)
         return add_page(sentinel, size);
 
     sentinel->free = 0;
-    void *tmp = sentinel;
-    char *tmp2 = tmp;
-    tmp2 += sizeof (struct metadata) + size;
-    tmp = tmp2;
-    void *next = sentinel->next;
-    sentinel->next = tmp;
-    sentinel->next->free = 1;
-    sentinel->next->size = sentinel->size - size - sizeof (struct metadata);
+    if (!sentinel->next)
+    {
+        void *tmp = sentinel;
+        char *tmp2 = tmp;
+        tmp2 += sizeof (struct metadata) + size;
+        tmp = tmp2;
+        sentinel->next = tmp;
+        sentinel->next->free = 1;
+        sentinel->next->size = sentinel->size - size - sizeof (struct metadata);
+    sentinel->next->next = NULL;
+    }
     sentinel->size = size;
-    sentinel->next->next = next;
     return sentinel + 1;
 }
 __attribute__((__visibility__("default")))
@@ -116,6 +118,8 @@ void free(void *ptr)
         sentinel->size += sentinel->next->size;
         sentinel->next = NULL;
     }
+    else
+        sentinel->size = (sentinel->next - sentinel);
 }
 __attribute__((__visibility__("default")))
 void *calloc(size_t nmemb, size_t size)
@@ -159,7 +163,7 @@ void *realloc(void *ptr, size_t size)
 int main(void)
 {
     char *str = malloc(200);
-    char *str2 = malloc(5000);
+    char *str2 = malloc(200);
     char *str3 = malloc(200);
     struct metadata *sentinel = metadata;
     while (sentinel)
@@ -169,8 +173,10 @@ int main(void)
         sentinel = sentinel->next;
     }
     free(str2);
-    str = realloc(str, 5000);
-    printf("REALLOC\n");
+    str2 =  malloc(20);
+    free(str2);
+    //str = realloc(str, 5000);
+    printf("FREE\n");
     sentinel = metadata;
     while (sentinel)
     {
