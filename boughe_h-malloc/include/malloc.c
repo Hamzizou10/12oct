@@ -175,7 +175,8 @@ int main(void)
     free(str2);
     str2 =  malloc(20);
     free(str2);
-    //str = realloc(str, 5000);
+    str = realloc(str, 5000);
+    printf("%lu\n", sysconf(_SC_PAGESIZE));
     printf("FREE\n");
     sentinel = metadata;
     while (sentinel)
