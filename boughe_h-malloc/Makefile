@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -std=c99 -pedantic -Wextra -Wall -Werror -fPIC -g
+CFLAGS = -std=c99 -pedantic -Wextra -Wall -fPIC -g
 
 VPATH = include
 
